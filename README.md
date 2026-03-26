@@ -34,6 +34,7 @@ If this API documentation saved you hours of debugging TLS fingerprinting, pleas
 - [Repository Updates Made](#repository-updates-made)
 - [Django API Changes Made](#django-api-changes-made)
 - [Remaining Gaps / Unknowns](#remaining-gaps--unknowns)
+- [Response Schemas](docs/response_schemas.md)
 
 ---
 
