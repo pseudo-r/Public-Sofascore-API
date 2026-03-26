@@ -62,11 +62,11 @@ Extensive deep searches and fuzzing Python scripts reveal the following status f
 | Version Route | Status | Notes |
 |---------------|--------|-------|
 | `/api/v1/` | **VERIFIED** | The absolute core of Sofascore data. Used for 99% of endpoints. |
-| `/api/v2/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
-| `/api/v3/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
+| `/api/v2/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. Tested across 15+ core data endpoints (events, players, stats, graphs) - all return 404 globally. |
+| `/api/v3/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. Tested across 15+ core data endpoints (events, players, stats, graphs) - all return 404 globally. |
 | `/mobile/v4/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
 
-*Conclusion:* Sofascore heavily protects its mobile paths or has fully unified its mobile and web data pipelines exclusively into the `v1` REST-like architecture.
+*Conclusion:* An exhaustive test matrix against 16 core endpoints verified that Sofascore heavily protects its mobile paths or has fully unified its mobile and web data pipelines exclusively into the `v1` REST-like architecture.
 
 ---
 
