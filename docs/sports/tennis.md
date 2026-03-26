@@ -1,102 +1,90 @@
-# Tennis Endpoints
+# 🎾 Tennis
 
-Tennis relies on the core global `eventId` structure on Sofascore, but routes discovery slightly differently (using `scheduled-tournaments` instead of `scheduled-events`) and has unique incident properties like `point-by-point`.
+> ATP, WTA, Challenger, and ITF tournaments worldwide.
+
+**Sport slug:** `tennis`  
+**Base URL (v1):** `https://api.sofascore.com/api/v1`
 
 ---
 
-## 1. Daily Scheduled Tournaments (Tennis)
+## Daily Schedules & Tournaments
 
-Returns the root list of active tournaments containing scheduled matches.
+| Endpoint | Method | Required Params | Query Params |
+|----------|--------|-----------------|--------------|
+| `/sport/tennis/scheduled-tournaments/{date}/page/{page}` | GET | `{date}`, `{page}` | None |
+| `/sport/tennis/unique-tournaments` | GET | None | None |
+| `/tournament/{id}/season/{seasonId}/standings/total` | GET | `{tournamentId}`, `{seasonId}` | None |
 
-### Endpoint
-`https://api.sofascore.com/api/v1/sport/tennis/scheduled-tournaments/{date}/page/1`
+> ⚠️ **Note:** Tennis scheduling uniquely groups by `scheduled-tournaments` rather than raw events natively, and it *requires* pagination (`/page/1`).
 
-### Method
-`GET`
+---
 
-### Required Params
-*   `date` (Format: `YYYY-MM-DD`, e.g., `2026-03-26`)
+## Event (Match) Endpoints
 
-### Example Response (Trimmed)
+> All endpoints below follow the pattern:  
+> `https://api.sofascore.com/api/v1/event/{eventId}<sub-path>`  
+
+| Sub-path | Description | Params |
+|----------|-------------|--------|
+| *(root)* | Core event details (players, time, status, scores) | None |
+| `/statistics` | Detailed match stats (aces, double faults, break pts) | None |
+| `/incidents` | Match timeline (breaks, medical timeouts) | None |
+| `/point-by-point` | **Unique:** Tracks every single point scored in the match | None |
+| `/tennis-power` | **Unique:** Momentum graph replacing standard pressure | None |
+
+---
+
+## Player Endpoints
+
+> Pattern: `https://api.sofascore.com/api/v1/player/{playerId}<sub-path>`
+
+| Sub-path | Description |
+|----------|-------------|
+| *(root)* | Core player profile, world rank |
+| `/events/next` | Upcoming tennis matches |
+| `/events/last` | Last played matches |
+| `/rankings` | ATP/WTA ranking history |
+
+---
+
+## Sport-Specific Quirks
+
+### 1. Tennis Power vs Graph
+Football uses `/graph` for momentum. Tennis uses the highly specific `/tennis-power` endpoint to track momentum swings across sets.
+
+### 2. Set Scoring
+Tennis sets are individually mapped onto the `period` arrays.
+
 ```json
-{
-  "scheduled": [
-    {
-      "tournament": {
-        "name": "Miami, USA",
-        "slug": "miami-usa",
-        "category": {
-          "name": "ATP",
-          "slug": "atp"
-        }
-      },
-      "customId": "VjbsZjb",
-      "status": {
-        "code": 100,
-        "description": "Ended",
-        "type": "finished"
-      },
-      "winnerCode": 1,
-      "homeTeam": {
-        "name": "Sinner J.",
-        "slug": "sinner-jannik",
-        "shortName": "Sinner J.",
-        "id": 268711
-      },
-      "awayTeam": {
-        "name": "Dimitrov G.",
-        "slug": "dimitrov-grigor",
-        "shortName": "Dimitrov G.",
-        "id": 65113
-      },
-      "homeScore": {
-        "current": 2,
-        "display": 2,
-        "period1": 6,
-        "period2": 6
-      },
-      "awayScore": {
-        "current": 0,
-        "display": 0,
-        "period1": 3,
-        "period2": 1
-      },
-      "id": 12154946,
-      "startTimestamp": 1711910400
-    }
-  ]
+"homeScore": {
+  "current": 2,
+  "display": 2,
+  "period1": 6,
+  "period2": 4,
+  "period3": 7,
+  "normaltime": 2
 }
 ```
 
-### Verification Status
-VERIFIED
+### 3. Point-by-Point
+The `/point-by-point` endpoint offers unparalleled granularity, explicitly breaking down ties, aces, and faults per game per set.
 
 ---
 
-## 2. Tennis Power Graph
+## Example API Calls
 
-Instead of the "Attack Momentum" graph used in football, tennis uses a "Tennis Power" graph to illustrate who controls the match flow.
+*Note: You must use a WAF bypass library (`curl_cffi` in Python) or attach Chrome headers to fetch these successfully.*
 
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/tennis-power`
+```bash
+# Get all Tennis tournaments scheduled for today
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/sport/tennis/scheduled-tournaments/2026-03-26/page/1"
 
-### Method
-`GET`
+# Get Match Details (Wimbledon Final)
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/event/11456123"
 
-### Verification Status
-VERIFIED
+# Get Point-by-Point Data
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/event/11456123/point-by-point"
 
----
-
-## 3. Point-by-Point
-
-Returns the chronological progression of the score within a game.
-
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/point-by-point`
-
-### Method
-`GET`
-
-### Verification Status
-VERIFIED
+# Get Carlos Alcaraz Player Profile (playerId: 245123)
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/player/245123"
+```

@@ -1,15 +1,64 @@
-# Baseball Endpoints
+# ⚾ Baseball Endpoints
 
-Baseball on Sofascore utilizes the standard `_global.md` architecture but introduces inning-by-inning scoring and highly specific match incidents.
+> MLB, NPB, KBO, and minor league baseball.
 
-## Core Navigation
-* **Sport Slug:** `baseball` (used in schedules e.g., `/sport/baseball/scheduled-events/{date}`)
-* **Global Support:** Full support for standard global Event, Team, and Player queries.
+**Sport slug:** `baseball`  
+**Base URL (v1):** `https://api.sofascore.com/api/v1`
+
+---
+
+## Daily Schedules & Tournaments
+
+| Endpoint | Method | Required Params | Query Params |
+|----------|--------|-----------------|--------------|
+| `/sport/baseball/scheduled-events/{date}` | GET | `{date}` (YYYY-MM-DD) | None |
+| `/sport/baseball/unique-tournaments` | GET | None | None |
+| `/tournament/{id}/season/{seasonId}/standings/total` | GET | `{tournamentId}`, `{seasonId}` | None |
+
+---
+
+## Event (Match) Endpoints
+
+> All endpoints below follow the pattern:  
+> `https://api.sofascore.com/api/v1/event/{eventId}<sub-path>`  
+
+| Sub-path | Description | Params |
+|----------|-------------|--------|
+| *(root)* | Core event details (teams, time, status, scores) | None |
+| `/statistics` | Detailed match stats (hits, errors, pitches) | None |
+| `/incidents` | Match timeline (hits, runs, pitching changes) | None |
+| `/graph` | Point differential momentum graph | None |
+
+---
+
+## Team Endpoints
+
+> Pattern: `https://api.sofascore.com/api/v1/team/{teamId}<sub-path>`
+
+| Sub-path | Description |
+|----------|-------------|
+| *(root)* | Core team profile, stadium, colors |
+| `/players` | Active roster |
+| `/performance` | Form guide and streak data |
+| `/events/next` | Upcoming scheduled games |
+
+---
+
+## Athlete / Player Endpoints
+
+> Pattern: `https://api.sofascore.com/api/v1/player/{playerId}<sub-path>`
+
+| Sub-path | Description |
+|----------|-------------|
+| *(root)* | Core player profile, position |
+| `/statistics/seasons` | Historical career stats |
+
+---
 
 ## Sport-Specific Quirks
 
 ### 1. Inning Scoring (Periods)
-The Sofascore payload maps innings to `periodX` objects inside the main event payload. A standard 9-inning game will populate up to `period9`.
+The Sofascore payload natively maps innings directly onto sequentially incrementing `period` properties inside `homeScore` and `awayScore`.
 
 ```json
 "awayScore": {
@@ -18,7 +67,6 @@ The Sofascore payload maps innings to `periodX` objects inside the main event pa
   "period1": 0,
   "period2": 1,
   "period3": 0,
-  "period4": 2,
   ...
   "period9": 0,
   "normaltime": 4
@@ -26,4 +74,21 @@ The Sofascore payload maps innings to `periodX` objects inside the main event pa
 ```
 
 ### 2. Match Incidents
-The `/event/{eventId}/incidents` array tracks plays differently from traditional timed sports. Incidents are commonly logged by innings (`incidentType: "inning"`) or by runs scored (`incidentType: "run"`).
+The `/event/{eventId}/incidents` array tracks plays differently from traditional timed sports. Incidents log strictly by innings (`incidentType: "inning"`) or by runs scored (`incidentType: "run"`).
+
+---
+
+## Example API Calls
+
+*Note: You must use a WAF bypass library (`curl_cffi` in Python) or attach Chrome headers to fetch these successfully.*
+
+```bash
+# Get all Baseball matches scheduled for today
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/sport/baseball/scheduled-events/2026-03-26"
+
+# Get Match Details
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/event/11679234"
+
+# Get Baseball Play-by-Play Incidents
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/event/11679234/incidents"
+```

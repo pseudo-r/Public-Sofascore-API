@@ -1,176 +1,104 @@
-# Football (Soccer) Endpoints
+# ⚽ Football / Soccer
 
-These endpoints are specifically tailored for football (soccer) schedules, unique tournaments, and match granularities on `api.sofascore.com`.
+> Football (Soccer) including the World Cup, Champions League, Premier League, LaLiga, Serie A, and minor regional leagues worldwide.
+
+**Sport slug:** `football`  
+**Base URL (v1):** `https://api.sofascore.com/api/v1`
 
 ---
 
-## 1. Daily Scheduled Events (Football)
+## Daily Schedules & Tournaments
 
-Loads all football matches scheduled for a specific date. This powers the main daily view on Sofascore.
+| Endpoint | Method | Required Params | Query Params |
+|----------|--------|-----------------|--------------|
+| `/sport/football/scheduled-events/{date}` | GET | `{date}` (YYYY-MM-DD) | None |
+| `/sport/football/unique-tournaments` | GET | None | None |
+| `/unique-tournament/{id}/seasons` | GET | `{uniqueTournamentId}` | None |
+| `/tournament/{id}/season/{seasonId}/standings/total` | GET | `{tournamentId}`, `{seasonId}` | None |
 
-### Endpoint
-`https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date}`
+---
 
-### Method
-`GET`
+## Event (Match) Endpoints
 
-### Required Params
-*   `date` (Format: `YYYY-MM-DD`, e.g., `2026-03-26`)
+> All endpoints below follow the pattern:  
+> `https://api.sofascore.com/api/v1/event/{eventId}<sub-path>`  
 
-### Example Response (Trimmed)
+| Sub-path | Description | Params |
+|----------|-------------|--------|
+| *(root)* | Core event details (teams, time, status, scores) | None |
+| `/statistics` | Detailed match stats (possession, shots, passes, corners) | None |
+| `/incidents` | Match timeline (goals, cards, VAR, substitutions) | None |
+| `/lineups` | Starting XI and bench players | None |
+| `/graph` | Momentum graph (pressure over time) | None |
+| `/player/{playerId}/statistics` | Specific player event ratings/heatmaps | `{playerId}` |
+| `/managers` | Coaches for both teams | None |
+
+---
+
+## Team Endpoints
+
+> Pattern: `https://api.sofascore.com/api/v1/team/{teamId}<sub-path>`
+
+| Sub-path | Description |
+|----------|-------------|
+| *(root)* | Core team profile, colors, venue |
+| `/players` | Active squad roster with player IDs |
+| `/performance` | Form guide and streak data |
+| `/events/next` | Upcoming scheduled matches |
+| `/events/last` | Last played matches |
+
+---
+
+## Athlete / Player Endpoints
+
+> Pattern: `https://api.sofascore.com/api/v1/player/{playerId}<sub-path>`
+
+| Sub-path | Description |
+|----------|-------------|
+| *(root)* | Core player profile, position, nationality |
+| `/statistics/seasons` | Historical career stats mapped by season |
+| `/characteristics` | Player traits (strengths/weaknesses) |
+| `/national-team-statistics` | International duty statistics |
+
+---
+
+## Sport-Specific Quirks
+
+### 1. Match Scoring
+Soccer halves are explicitly tracked inside the `homeScore` and `awayScore` keys in event payloads:
+
 ```json
-{
-  "events": [
-    {
-      "tournament": {
-        "name": "World Cup Qual. UEFA Playoffs",
-        "slug": "world-championship-qual-uefa-playoffs",
-        "category": {
-            "name": "Europe",
-            "slug": "europe"
-        }
-      },
-      "customId": "IUbsXVb",
-      "status": {
-        "code": 100,
-        "description": "Ended",
-        "type": "finished"
-      },
-      "winnerCode": 1,
-      "homeTeam": {
-        "name": "Türkiye",
-        "slug": "turkey",
-        "shortName": "Türkiye",
-        "id": 4705
-      },
-      "awayTeam": {
-        "name": "Romania",
-        "slug": "romania",
-        "shortName": "Romania",
-        "id": 4716
-      },
-      "homeScore": {
-        "current": 1,
-        "display": 1,
-        "period1": 1,
-        "normaltime": 1
-      },
-      "awayScore": {
-        "current": 0,
-        "display": 0,
-        "period1": 0,
-        "normaltime": 0
-      },
-      "id": 11352523,
-      "startTimestamp": 1742407200
-    }
-  ]
+"homeScore": {
+  "current": 2,
+  "display": 2,
+  "period1": 1,
+  "period2": 1,
+  "normaltime": 2
 }
 ```
 
-### Verification Status
-VERIFIED
+### 2. Incidents (Cards & Goals)
+The `/incidents` array explicitly distinguishes between Yellow/Red cards, Goals, and Subs. `incidentType` dictates the event, while `incidentClass` outlines the specifics (e.g., `incidentClass: "yellow"`).
 
 ---
 
-## 2. Match Statistics
+## Example API Calls
 
-Detailed match statistics including possession, shots, passing, and duels data.
+*Note: You must use a WAF bypass library (`curl_cffi` in Python) or attach Chrome headers to fetch these successfully.*
 
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/statistics`
+```bash
+# Get all football matches scheduled for today
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/sport/football/scheduled-events/2026-03-26"
 
-### Method
-`GET`
+# Get Match Details (Champions League Final)
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/event/11352523"
 
-### Example Response (Trimmed)
-```json
-{
-  "statistics": [
-    {
-      "period": "ALL",
-      "groups": [
-        {
-          "groupName": "Match overview",
-          "statisticsItems": [
-            {
-              "name": "Ball possession",
-              "home": "68%",
-              "away": "32%",
-              "compareCode": 1,
-              "statisticsType": "positive",
-              "valueType": "event",
-              "homeValue": 68,
-              "awayValue": 32,
-              "renderType": 2,
-              "key": "ballPossession"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+# Get Real Madrid Team Profile (teamId: 2829)
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/team/2829"
+
+# Get Real Madrid Roster
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/team/2829/players"
+
+# Get Jude Bellingham Player Profile (playerId: 991011)
+curl -H "User-Agent: Mozilla/5.0" "https://api.sofascore.com/api/v1/player/991011"
 ```
-
-### Verification Status
-VERIFIED
-
----
-
-## 3. Match Momentum Graph
-
-Sofascore's famous "Attack Momentum" graph. The `value` generally spans between -100 to 100 based on the attacking pressure of home vs away teams.
-
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/graph`
-
-### Method
-`GET`
-
-### Example Response (Trimmed)
-```json
-{
-  "graphPoints": [
-    {"minute": 1, "value": 5},
-    {"minute": 2, "value": 24},
-    {"minute": 3, "value": 19},
-    {"minute": 4, "value": 54},
-    {"minute": 5, "value": 38},
-    {"minute": 6, "value": 20}
-  ]
-}
-```
-
-### Verification Status
-VERIFIED
-
----
-
-## 4. Match Lineups
-
-Starting XI and substitutions for both teams, including player ratings if available.
-
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/lineups`
-
-### Method
-`GET`
-
-### Verification Status
-VERIFIED
-
----
-
-## 5. Match Managers
-
-Returns the data for the team managers.
-
-### Endpoint
-`https://api.sofascore.com/api/v1/event/{eventId}/managers`
-
-### Method
-`GET`
-
-### Verification Status
-VERIFIED
