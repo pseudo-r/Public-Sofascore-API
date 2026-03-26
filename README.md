@@ -189,6 +189,15 @@ Most match data hangs off the generic `{eventId}` model.
 | Esports | `esports` |
 | Table Tennis | `table-tennis` |
 
+### How to Discover IDs
+
+Because Sofascore relies heavily on internal integer IDs instead of slugs for routing, you must retrieve them from higher-level endpoints:
+
+* **Finding an `{eventId}`:** Query the daily schedule for a given sport and date (e.g., `/api/v1/sport/football/scheduled-events/2024-03-26`). The JSON target will be `events[0].id`.
+* **Finding a `{teamId}`:** Navigate into any match event payload (or search payload) and extract `homeTeam.id` or `awayTeam.id`.
+* **Finding a `{playerId}`:** Once you have a `{teamId}`, query the team roster (`/api/v1/team/{teamId}/players`). Extract the `player.id` integer.
+* **Finding a `{tournamentId}`:** Use the unique tournaments endpoint (`/api/v1/sport/{sport}/unique-tournaments`).
+
 ---
 
 ## Sport-Specific Endpoint Notes
