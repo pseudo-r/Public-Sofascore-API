@@ -4,7 +4,7 @@
 
 **Disclaimer:** This is documentation for Sofascore's undocumented internal public API. I am not affiliated with Sofascore. Use responsibly and respect rate limits.
 
-[![CI](https://github.com/pseudo-r/Public-Sofascore-API/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pseudo-r/Public-Sofascore-API/actions/workflows/ci.yml)
+
 
 ---
 
