@@ -162,6 +162,33 @@ Most match data hangs off the generic `{eventId}` model.
 * **Verification Status:** VERIFIED
 * **Notes:** Lists all tournaments for a sport.
 
+## Parameters Reference
+
+### Path Parameters
+
+| Parameter | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `{eventId}` | Integer | Unique identifier for a match/event. Look this up via the scheduled events endpoint. | `11352523` |
+| `{teamId}` | Integer | Unique identifier for a team across any sport. | `4705` |
+| `{playerId}` | Integer | Unique identifier for an athlete. | `814123` |
+| `{sport}` | String | lowercase slug identifying the sport category. | `football` |
+| `{date}` | String | ISO-8601 date format for scheduling lookups. | `2024-03-26` |
+| `{page}` | Integer | Pagination parameter, commonly required for scheduled tennis tournaments and rankings. | `1` |
+| `{locale}` | String | Country code for configuration fetching. | `US`, `GB` |
+
+### Common Sport Slugs (`{sport}`)
+
+| Sport | Slug |
+|-------|------|
+| Soccer / Football | `football` |
+| Tennis | `tennis` |
+| Basketball | `basketball` |
+| Ice Hockey | `ice-hockey` |
+| American Football | `american-football` |
+| Baseball | `baseball` |
+| Esports | `esports` |
+| Table Tennis | `table-tennis` |
+
 ---
 
 ## Sport-Specific Endpoint Notes
