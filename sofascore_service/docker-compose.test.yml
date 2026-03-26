@@ -1,0 +1,41 @@
+# docker-compose.test.yml — run tests inside Docker with a fresh Postgres
+# Usage:
+#   docker compose -f docker-compose.test.yml run --rm test
+#   docker compose -f docker-compose.test.yml run --rm test python manage.py makemigrations --check
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: espn_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d espn_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  test:
+    build:
+      context: .
+      target: production
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      DATABASE_URL: postgres://postgres:postgres@db:5432/espn_test
+      SECRET_KEY: docker-test-secret-key-not-for-production
+      DEBUG: "False"
+      CELERY_BROKER_URL: ""
+    depends_on:
+      db:
+        condition: service_healthy
+    # Default: migrate then run the full test suite
+    command: >
+      sh -c "python manage.py makemigrations --check --settings=config.settings.test &&
+             python manage.py migrate --settings=config.settings.test &&
+             python -m pytest tests/ --no-cov -q"

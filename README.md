@@ -210,8 +210,18 @@ Most match data hangs off the generic `{eventId}` model.
 
 ## Django API Changes Made
 
-- **`Public-ESPN-API/espn_service/clients/sofascore_client.py`:** Created a dedicated Sofascore client that wraps API calls and handles TLS WAF bypass (using PycURL or `curl_cffi` strategies).
-- **Service Integration:** Added generic `get_event_details()` and `get_team()` fetching models aligned with the rest of the ESPN-API ingestion flows.
+- **`Public-Sofascore-API/sofascore_service`:** Created a dedicated standalone Django REST Framework service natively in this repository specifically to wrap and serve the endpoints through Python proxy views.
+- **`clients/sofascore_client.py`:** Contains the robust Chrome-impersonated `curl_cffi` HTTP client which inherently maps and solves the TLS Fingerprinting requirements automatically for any application requesting `get_event_details()`, `get_team()`, or `get_scheduled_events()`.
+
+### Sofascore Service (Django Proxy Implementation)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/sofascore/event/{id}/` | GET | Fetch Sofascore event details |
+| `/api/v1/sofascore/team/{id}/` | GET | Fetch Sofascore team profile |
+| `/api/v1/sofascore/schedule/{sport}/{date}/` | GET | Fetch Sofascore scheduled events globally |
+
+See [`sofascore_service/README.md`](sofascore_service/README.md) for full service API documentation and running the Docker containers.
 
 ---
 
