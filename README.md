@@ -52,15 +52,21 @@ The Sofascore web platform is heavily driven by a robust, unified JSON API backe
 | Domain | Status | Purpose |
 |--------|--------|---------|
 | `api.sofascore.com` | **PRIMARY** | The main data driver. All modern App/Web JSON flows here. |
+| `api.sofascore.app` | **MIRROR** | A secondary/alternate domain that mirrors the exact v1 API payloads of the primary domain. Used potentially as a fallback or origin bypass. Returns HTTP 200 using the same endpoints. |
 | `www.sofascore.com/api` | **PROXY** | Often used interchangeably on the web app; proxies directly to `api.sofascore.com`. |
 
 ## Versioned Endpoints (v1 / v2 / v3 / legacy)
 
+Extensive deep searches and fuzzing Python scripts reveal the following status for API routes:
+
 | Version Route | Status | Notes |
 |---------------|--------|-------|
 | `/api/v1/` | **VERIFIED** | The absolute core of Sofascore data. Used for 99% of endpoints. |
-| `/api/v2/` | UNVERIFIED | Could not find any active footprints of v2 currently driving the main app. |
-| `/api/v3/` | UNVERIFIED | No footprint found. |
+| `/api/v2/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
+| `/api/v3/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
+| `/mobile/v4/` | **DEFUNCT/404** | Tested combinations. Returns 404 Not Found. |
+
+*Conclusion:* Sofascore heavily protects its mobile paths or has fully unified its mobile and web data pipelines exclusively into the `v1` REST-like architecture.
 
 ---
 
